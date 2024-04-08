@@ -78,20 +78,37 @@ public class DemoSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(configurer -> {
-            configurer
-                    .requestMatchers(HttpMethod.GET, "/api/students").hasRole(EMPLOYEE_ROLE)
-                    .requestMatchers(HttpMethod.GET, "/api/students/**").hasRole(EMPLOYEE_ROLE)
-                    .requestMatchers(HttpMethod.POST, "/api/students").hasRole(MANAGER_ROLE)
-                    .requestMatchers(HttpMethod.PUT, "/api/students").hasRole(MANAGER_ROLE)
-                    .requestMatchers(HttpMethod.DELETE, "/api/students/**").hasRole(ADMIN_ROLE);
+                    configurer
+                            .requestMatchers(HttpMethod.GET, "/api/students").hasRole(EMPLOYEE_ROLE)
+                            .requestMatchers(HttpMethod.GET, "/api/students/**").hasRole(EMPLOYEE_ROLE)
+                            .requestMatchers(HttpMethod.POST, "/api/students").hasRole(MANAGER_ROLE)
+                            .requestMatchers(HttpMethod.PUT, "/api/students").hasRole(MANAGER_ROLE)
+                            .requestMatchers(HttpMethod.DELETE, "/api/students/**").hasRole(ADMIN_ROLE);
 
-            configurer
-                    .requestMatchers(HttpMethod.GET, "/api/members").hasRole(EMPLOYEE_ROLE)
-                    .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole(EMPLOYEE_ROLE)
-                    .requestMatchers(HttpMethod.POST, "/api/members").hasRole(MANAGER_ROLE)
-                    .requestMatchers(HttpMethod.PUT, "/api/members").hasRole(MANAGER_ROLE)
-                    .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasRole(ADMIN_ROLE);
-        });
+                    configurer
+                            .requestMatchers(HttpMethod.GET, "/api/members").hasRole(MANAGER_ROLE)
+                            .requestMatchers(HttpMethod.GET, "/api/members/**").hasRole(EMPLOYEE_ROLE)
+                            .requestMatchers(HttpMethod.POST, "/api/members").hasRole(MANAGER_ROLE)
+                            .requestMatchers(HttpMethod.PUT, "/api/members").hasRole(MANAGER_ROLE)
+                            .requestMatchers(HttpMethod.DELETE, "/api/members/**").hasRole(ADMIN_ROLE);
+
+                    configurer
+                            .requestMatchers(HttpMethod.GET, "/").hasRole(EMPLOYEE_ROLE)
+                            .requestMatchers(HttpMethod.GET, "/students/**").hasRole(EMPLOYEE_ROLE)
+                            .requestMatchers(HttpMethod.POST, "/students/save").hasRole(EMPLOYEE_ROLE);
+
+                    configurer
+                            .anyRequest()
+                            .authenticated();
+                })
+                .formLogin(form -> {
+                    form
+                            .loginPage("/showMyLoginPage")
+                            .loginProcessingUrl("/login")
+                            .permitAll();
+                })
+                .logout(config -> config.permitAll())
+                .exceptionHandling(configurer -> configurer.accessDeniedPage("/access-denied"));
 
         http.httpBasic(Customizer.withDefaults());
 
